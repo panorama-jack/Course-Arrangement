@@ -39,6 +39,6 @@ MySQL8.0
 
 ### 系统界面展示：
 
-![1](.\img\1.png)
+![1](https://github.com/panorama-jack/Course-Arrangement/blob/main/img/1.png?raw=true)
 
-![2](.\img\2.png)
+![2](https://github.com/panorama-jack/Course-Arrangement/blob/main/img/2.png?raw=true)
