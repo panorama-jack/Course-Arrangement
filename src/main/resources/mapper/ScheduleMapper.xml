@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chen.coursearrangement.mapper.ScheduleMapper">
+
+    <resultMap id="scheduleResultMap" type="com.chen.coursearrangement.entity.dto.ScheduleDTO">
+        <result property="courseTime" column="course_time"/>
+        <result property="classroomName" column="classroom_name"/>
+        <result property="courseName" column="course_name"/>
+        <result property="teacherName" column="teacher_name"/>
+    </resultMap>
+
+    <select id="queryScheduleByClassNo" resultType="com.chen.coursearrangement.entity.dto.ScheduleDTO">
+        SELECT s.id,s.course_time, c.classroom_name, ci.course_name, t.teacher_name
+        FROM schedule s
+                 LEFT JOIN classroom c ON s.classroom_no = c.classroom_no
+                 LEFT JOIN course_info ci ON s.course_no = ci.course_no
+                 LEFT JOIN teacher t ON s.teacher_no = t.teacher_no
+        WHERE s.term = #{term}
+          AND s.class_no = #{classNo}
+        ORDER BY s.course_time ASC
+    </select>
+
+
+    <select id="queryScheduleByTeacherNo" resultType="com.chen.coursearrangement.entity.dto.ScheduleDTO">
+        SELECT s.course_time, c.classroom_name, coi.course_name, cli.class_name
+        FROM schedule s
+                 LEFT JOIN classroom c ON s.classroom_no = c.classroom_no
+                 LEFT JOIN course_info coi ON s.course_no = coi.course_no
+                 LEFT JOIN class_info cli ON s.class_no = cli.class_no
+        WHERE s.term = #{term}
+          AND s.teacher_no = #{teacherNo}
+        ORDER BY s.course_time ASC
+
+    </select>
+    <select id="selectDistinctClassesByTermAndTeacher" resultType="java.util.Map">
+        SELECT DISTINCT s.class_no AS classNo, c.class_name AS className
+        FROM schedule s
+                 JOIN class_info c ON s.class_no = c.class_no
+        WHERE s.term = #{term} AND s.teacher_no = #{teacherNo}
+    </select>
+
+
+    <select id="getCourseTimeList" resultType="java.lang.String">
+        SELECT course_time
+        FROM (
+                 SELECT '01' AS course_time
+                 UNION ALL SELECT '02'
+                 UNION ALL SELECT '03'
+                 UNION ALL SELECT '04'
+                 UNION ALL SELECT '05'
+                 UNION ALL SELECT '06'
+                 UNION ALL SELECT '07'
+                 UNION ALL SELECT '08'
+                 UNION ALL SELECT '09'
+                 UNION ALL SELECT '10'
+                 UNION ALL SELECT '11'
+                 UNION ALL SELECT '12'
+                 UNION ALL SELECT '13'
+                 UNION ALL SELECT '14'
+                 UNION ALL SELECT '15'
+                 UNION ALL SELECT '16'
+                 UNION ALL SELECT '17'
+                 UNION ALL SELECT '18'
+                 UNION ALL SELECT '19'
+                 UNION ALL SELECT '20'
+                 UNION ALL SELECT '21'
+                 UNION ALL SELECT '22'
+                 UNION ALL SELECT '23'
+                 UNION ALL SELECT '24'
+                 UNION ALL SELECT '25'
+             ) AS all_course_times
+        WHERE all_course_times.course_time NOT IN (
+            SELECT course_time
+            FROM schedule
+            WHERE class_no = #{classNo}
+        )
+
+        UNION
+
+        SELECT course_time
+        FROM (
+                 SELECT '01' AS course_time
+                 UNION ALL SELECT '02'
+                 UNION ALL SELECT '03'
+                 UNION ALL SELECT '04'
+                 UNION ALL SELECT '05'
+                 UNION ALL SELECT '06'
+                 UNION ALL SELECT '07'
+                 UNION ALL SELECT '08'
+                 UNION ALL SELECT '09'
+                 UNION ALL SELECT '10'
+                 UNION ALL SELECT '11'
+                 UNION ALL SELECT '12'
+                 UNION ALL SELECT '13'
+                 UNION ALL SELECT '14'
+                 UNION ALL SELECT '15'
+                 UNION ALL SELECT '16'
+                 UNION ALL SELECT '17'
+                 UNION ALL SELECT '18'
+                 UNION ALL SELECT '19'
+                 UNION ALL SELECT '20'
+                 UNION ALL SELECT '21'
+                 UNION ALL SELECT '22'
+                 UNION ALL SELECT '23'
+                 UNION ALL SELECT '24'
+                 UNION ALL SELECT '25'
+             ) AS all_course_times2
+        WHERE all_course_times2.course_time NOT IN (
+            SELECT course_time
+            FROM schedule
+            WHERE teacher_no = #{teacherNo}
+        );
+    </select>
+    <select id="getClassroomList" resultType="java.util.Map">
+        SELECT c.classroom_no AS classroomNo, c.classroom_name AS classroomName
+        FROM classroom c
+        WHERE c.classroom_type = (
+            SELECT cr.classroom_type
+            FROM classroom cr
+            WHERE cr.classroom_no = #{classroomNo}
+        )
+          AND NOT EXISTS (
+                SELECT 1
+                FROM schedule s
+                WHERE s.classroom_no = c.classroom_no
+                  AND s.course_time = #{courseTime}
+            );
+    </select>
+</mapper>

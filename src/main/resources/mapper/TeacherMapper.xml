@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chen.coursearrangement.mapper.TeacherMapper">
+
+    <resultMap id="pageTeacher" type="com.chen.coursearrangement.entity.dto.TeacherDTO">
+        <result column="id" property="id"/>
+        <result column="college" property="college"/>
+        <result column="teacher_no" property="teacherNo"/>
+        <result column="teacher_name" property="teacherName"/>
+        <result column="profession" property="profession"/>
+        <result column="telephone" property="telephone"/>
+    </resultMap>
+    <insert id="imp" parameterType="java.util.List">
+        insert into teacher(college_no,teacher_no,teacher_name,profession,telephone)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.collegeNo},
+            #{item.teacherNo},
+            #{item.teacherName},
+            #{item.profession},
+            #{item.telephone}
+            )
+        </foreach>
+
+
+    </insert>
+
+    <select id="findPage" resultMap="pageTeacher">
+        SELECT
+        t.id,
+        d_college.name AS college,
+        t.teacher_no ,
+        teacher_name ,
+        d_profession.name AS profession,
+        t.telephone
+        FROM
+        teacher t
+        LEFT JOIN
+        sys_dict d_college ON t.college_no = d_college.value AND d_college.type = 'college'
+        LEFT JOIN
+        sys_dict d_profession ON t.profession = d_profession.value AND d_profession.type = 'profession'
+        <where>
+            <if test="teacherNo != null and teacherNo != ''">
+                and teacher_no like concat('%', #{teacherNo} ,'%')
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and teacher_name like concat('%', #{teacherName} ,'%')
+            </if>
+            <if test="college != null and college != ''">
+                and college_no like concat('%', #{college} ,'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getMaxLastThreeDigits" resultType="java.lang.Integer">
+        SELECT MAX(CAST(SUBSTRING(teacher_no, -3) AS UNSIGNED)) AS max_last_three_digits
+        FROM teacher
+        WHERE college_no = #{college}
+    </select>
+
+    <select id="export" resultType="com.chen.coursearrangement.entity.dto.TeacherDTO">
+        SELECT
+        t.id,
+        d_college.name AS college,
+        t.teacher_no ,
+        teacher_name ,
+        d_profession.name AS profession,
+        t.telephone
+        FROM
+        teacher t
+        LEFT JOIN
+        sys_dict d_college ON t.college_no = d_college.value AND d_college.type = 'college'
+        LEFT JOIN
+        sys_dict d_profession ON t.profession = d_profession.value AND d_profession.type = 'profession'
+        <where>
+            <if test="teacherNo != null and teacherNo != ''">
+                and teacher_no like concat('%', #{teacherNo} ,'%')
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and teacher_name like concat('%', #{teacherName} ,'%')
+            </if>
+            <if test="college != null and college != ''">
+                and college_no like concat('%', #{college} ,'%')
+            </if>
+        </where>
+    </select>
+</mapper>

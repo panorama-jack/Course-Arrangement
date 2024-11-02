@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chen.coursearrangement.mapper.UserMapper">
+    <!--    使用了CASE语句来判断teacher和student表中的college_no是否为空。-->
+    <select id="getUserRoleAndCollege" resultType="com.chen.coursearrangement.entity.dto.UserDTO">
+        SELECT u.role AS role,
+               CASE
+                   WHEN t.college_no IS NOT NULL THEN t.college_no
+                   WHEN s.college_no IS NOT NULL THEN s.college_no
+                   ELSE NULL
+                   END AS college
+        FROM user u
+                 LEFT JOIN teacher t ON u.user_no = t.teacher_no
+                 LEFT JOIN student s ON u.user_no = s.student_no
+        WHERE u.user_no = #{userNo}
+    </select>
+
+
+    <select id="getUserTelephone" resultType="String">
+        SELECT CASE
+                   WHEN t.telephone IS NOT NULL THEN t.telephone
+                   WHEN s.telephone IS NOT NULL THEN s.telephone
+                   ELSE NULL
+                   END AS telephone
+        FROM user u
+                 LEFT JOIN teacher t ON u.user_no = t.teacher_no
+                 LEFT JOIN student s ON u.user_no = s.student_no
+        WHERE u.user_no = #{userNo}
+    </select>
+</mapper>

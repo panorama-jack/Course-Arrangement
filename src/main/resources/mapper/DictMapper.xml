@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chen.coursearrangement.mapper.DictMapper">
+
+    <select id="findPage" resultType="com.chen.coursearrangement.entity.Dict">
+        SELECT * FROM sys_dict
+        <where>
+            <if test="type != null and type != ''">
+                AND type = #{type}
+            </if>
+        </where>
+    </select>
+    <select id="queryTypeCount" resultType="java.util.Map">
+        SELECT
+            `type`,
+            COUNT(*) AS type_count
+        FROM
+            `sys_dict`
+        GROUP BY
+            `type`;
+    </select>
+</mapper>

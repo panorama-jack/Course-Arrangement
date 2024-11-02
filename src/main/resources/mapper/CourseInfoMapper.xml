@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chen.coursearrangement.mapper.CourseInfoMapper">
+
+    <resultMap id="courseInfoResultMap" type="com.chen.coursearrangement.entity.dto.CoursePlanDTO">
+        <result property="courseNo" column="course_no"/>
+        <result property="courseName" column="course_name"/>
+        <result property="teacherName" column="teacher_name"/>
+    </resultMap>
+
+    <resultMap id="courseInfoExport" type="com.chen.coursearrangement.entity.dto.CourseInfoDTO">
+        <result property="college" column="college"/>
+        <result property="courseAttribute" column="courseAttribute"/>
+        <result property="courseNo" column="course_no"/>
+        <result property="courseName" column="course_name"/>
+        <result property="teacherName" column="teacher_name"/>
+        <result property="classroomType" column="classroomType"/>
+    </resultMap>
+    <insert id="imp" parameterType="java.util.List">
+        insert into course_info (college_no,course_attribute,course_no,course_name,teacher_no,classroom_type)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.collegeNo},
+            #{item.courseAttribute},
+            #{item.courseNo},
+            #{item.courseName},
+            #{item.teacherNo},
+            #{item.classroomType}
+            )
+        </foreach>
+
+
+    </insert>
+
+
+    <select id="findCourse" resultMap="courseInfoResultMap">
+        SELECT c.course_no, c.course_name, t.teacher_name
+        FROM course_info c
+                 LEFT JOIN teacher t ON c.teacher_no = t.teacher_no
+    </select>
+
+    <select id="export" resultMap="courseInfoExport">
+        SELECT
+        d_college.name AS college,
+        d_courseAttribute.name AS courseAttribute,
+        c.course_no ,
+        c.course_name,
+        t.teacher_name,
+        d_classroomType.name AS classroomType
+        FROM
+        course_info c
+        LEFT JOIN
+        sys_dict d_college ON c.college_no = d_college.value AND d_college.type = 'college'
+
+        LEFT JOIN
+        sys_dict d_courseAttribute ON c. course_attribute= d_courseAttribute.value AND d_courseAttribute.type =
+        'courseAttribute'
+
+        LEFT JOIN
+        sys_dict d_classroomType ON c.classroom_type = d_classroomType.value AND d_classroomType.type = 'classroom'
+        LEFT JOIN
+        teacher t on c.teacher_no=t.teacher_no
+        <where>
+            <if test="college != null and college != ''">
+                and c.college_no=#{college}
+            </if>
+            <if test="courseAttribute != null and courseAttribute != ''">
+                and c.course_attribute=#{courseAttribute}
+            </if>
+            <if test="courseName!= null and courseName != ''">
+                and c.course_name like concat('%', #{courseName} ,'%')
+            </if>
+        </where>
+    </select>
+</mapper>
+

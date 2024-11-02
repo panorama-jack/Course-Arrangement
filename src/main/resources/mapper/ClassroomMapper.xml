@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chen.coursearrangement.mapper.ClassroomMapper">
+
+    <resultMap id="pageClassroom" type="com.chen.coursearrangement.entity.Classroom">
+        <result column="id" property="id" />
+        <result column="teaching_building_no" property="teachingBuildingNo" />
+        <result column="classroom_no" property="classroomNo" />
+        <result column="classroom_name" property="classroomName" />
+        <result column="capacity" property="capacity" />
+        <result column="classroom_type" property="classroomType" />
+    </resultMap>
+
+    <select id="findPage" resultMap="pageClassroom">
+        select * from classroom
+        <where>
+            <if test="teachingBuildingNo != null and teachingBuildingNo != ''">
+                and teaching_building_no like concat('%', #{teachingBuildingNo} ,'%')
+            </if>
+            <if test="classroomType != null and classroomType != ''">
+                and classroom_type like concat('%', #{classroomType} ,'%')
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectByTeachingBuildingNos" resultType="com.chen.coursearrangement.entity.Classroom" parameterType="java.util.List">
+            SELECT * FROM classroom
+            WHERE teaching_building_no IN
+            <foreach item="item" index="index" collection="teachingBuildingNos" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+    </select>
+</mapper>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chen.coursearrangement.mapper.StudentMapper">
+    <resultMap id="pageStudent" type="com.chen.coursearrangement.entity.dto.StudentDTO">
+        <result column="id" property="id"/>
+        <result column="grade" property="grade"/>
+        <result column="college" property="college"/>
+        <result column="class_name" property="className"/>
+        <result column="student_no" property="studentNo"/>
+        <result column="student_name" property="studentName"/>
+        <result column="telephone" property="telephone"/>
+    </resultMap>
+
+
+    <insert id="imp" parameterType="java.util.List">
+        insert into student (grade_no,college_no,class_no,student_no,student_name,telephone)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.gradeNo},
+            #{item.collegeNo},
+            #{item.classNo},
+            #{item.studentNo},
+            #{item.studentName},
+            #{item.telephone}
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="findPage" resultMap="pageStudent">
+        SELECT
+        d_grade.name AS grade,
+        d_college.name AS college,
+        c.class_name ,
+        s.id,
+        s.student_no ,
+        s.student_name,
+        s.telephone
+        FROM
+        student s
+        LEFT JOIN
+        sys_dict d_grade ON s.grade_no = d_grade.value AND d_grade.type = 'grade'
+        LEFT JOIN
+        sys_dict d_college ON s.college_no = d_college.value AND d_college.type = 'college'
+        LEFT JOIN
+        class_info c on s.class_no=c.class_no
+        <where>
+            <if test="college != null and college != ''">
+                and s.college_no=#{college}
+            </if>
+            <if test="grade != null and grade != ''">
+                and s.grade_no=#{grade}
+            </if>
+
+            <if test="classNo != null and classNo != ''">
+                and s.class_no=#{classNo}
+            </if>
+            <if test="studentNo!= null and studentNo != ''">
+                and student_no like concat('%', #{studentNo} ,'%')
+            </if>
+            <if test="studentName != null and studentName != ''">
+                and student_name like concat('%', #{studentName} ,'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getMaxLastTwoDigits" resultType="java.lang.Integer">
+        SELECT MAX(CAST(SUBSTRING(student_no, -2) AS UNSIGNED)) AS max_last_two_digits
+        FROM student
+        WHERE class_no = #{classNo}
+    </select>
+
+    <select id="export" resultType="com.chen.coursearrangement.entity.dto.StudentDTO">
+        SELECT
+        d_grade.name AS grade,
+        d_college.name AS college,
+        c.class_name ,
+        s.id,
+        s.student_no ,
+        s.student_name,
+        s.telephone
+        FROM
+        student s
+        LEFT JOIN
+        sys_dict d_grade ON s.grade_no = d_grade.value AND d_grade.type = 'grade'
+        LEFT JOIN
+        sys_dict d_college ON s.college_no = d_college.value AND d_college.type = 'college'
+        LEFT JOIN
+        class_info c on s.class_no=c.class_no
+        <where>
+            <if test="college != null and college != ''">
+                and s.college_no=#{college}
+            </if>
+            <if test="grade != null and grade != ''">
+                and s.grade_no=#{grade}
+            </if>
+
+            <if test="classNo != null and classNo != ''">
+                and s.class_no=#{classNo}
+            </if>
+            <if test="studentNo!= null and studentNo != ''">
+                and student_no like concat('%', #{studentNo} ,'%')
+            </if>
+            <if test="studentName != null and studentName != ''">
+                and student_name like concat('%', #{studentName} ,'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findPageByTeacher" resultType="com.chen.coursearrangement.entity.dto.StudentDTO">
+            SELECT
+            d_grade.name AS grade,
+            d_college.name AS college,
+            c.class_name,
+            s.id,
+            s.student_no,
+            s.student_name,
+            s.telephone
+            FROM student s
+            LEFT JOIN sys_dict d_grade ON s.grade_no = d_grade.value AND d_grade.type = 'grade'
+            LEFT JOIN sys_dict d_college ON s.college_no = d_college.value AND d_college.type = 'college'
+            LEFT JOIN class_info c ON s.class_no = c.class_no
+            <where>
+                <if test="userNo != null and userNo != ''">
+                    AND s.class_no IN (
+                    SELECT DISTINCT class_no
+                    FROM schedule
+                    WHERE teacher_no = #{userNo}
+                    <if test="term != null and term != ''">
+                        AND term = #{term}
+                    </if>
+                    )
+                </if>
+                <if test="classNo != null and classNo != ''">
+                    AND s.class_no = #{classNo}
+                </if>
+                <if test="studentNo != null and studentNo != ''">
+                    AND s.student_no LIKE CONCAT('%', #{studentNo}, '%')
+                </if>
+                <if test="studentName != null and studentName != ''">
+                    AND s.student_name LIKE CONCAT('%', #{studentName}, '%')
+                </if>
+            </where>
+    </select>
+    <select id="exportByTeacher" resultType="com.chen.coursearrangement.entity.dto.StudentDTO">
+        SELECT
+        d_grade.name AS grade,
+        d_college.name AS college,
+        c.class_name,
+        s.id,
+        s.student_no,
+        s.student_name,
+        s.telephone
+        FROM student s
+        LEFT JOIN sys_dict d_grade ON s.grade_no = d_grade.value AND d_grade.type = 'grade'
+        LEFT JOIN sys_dict d_college ON s.college_no = d_college.value AND d_college.type = 'college'
+        LEFT JOIN class_info c ON s.class_no = c.class_no
+        <where>
+            <if test="userNo != null and userNo != ''">
+                AND s.class_no IN (
+                SELECT DISTINCT class_no
+                FROM schedule
+                WHERE teacher_no = #{userNo}
+                <if test="term != null and term != ''">
+                    AND term = #{term}
+                </if>
+                )
+            </if>
+            <if test="classNo != null and classNo != ''">
+                AND s.class_no = #{classNo}
+            </if>
+            <if test="studentNo != null and studentNo != ''">
+                AND s.student_no LIKE CONCAT('%', #{studentNo}, '%')
+            </if>
+            <if test="studentName != null and studentName != ''">
+                AND s.student_name LIKE CONCAT('%', #{studentName}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

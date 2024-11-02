@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chen.coursearrangement.mapper.CoursePlanMapper">
+
+    <select id="queryCoursePlanProcess" resultType="com.chen.coursearrangement.entity.dto.EchartsDTO">
+        SELECT
+        d_college.name AS college_name,
+        ci.class_name,
+        MAX(IF(cp.class_no IS NOT NULL, '出现', '未出现')) AS appearance_status
+        FROM
+        class_info ci
+        LEFT JOIN course_plan cp ON ci.grade_no = cp.grade_no AND ci.class_no = cp.class_no
+        LEFT JOIN sys_dict d_college ON ci.college_no = d_college.value AND d_college.type = 'college'
+        <where>
+        <if test="term != null and term != ''">
+            cp.term = #{term}
+        </if>
+        <if test="gradeNo != null and gradeNo != ''">
+            AND ci.grade_no = #{gradeNo}
+        </if>
+        </where>
+        GROUP BY
+        d_college.name, ci.class_name
+    </select>
+</mapper>
