@@ -59,6 +59,16 @@ MySQL8.0
 
 系统登录地址：http://localhost:8080/login
 
+系统管理员账号：ffff0x      密码：admin123
+
+学院管理员账号：22001     密码：922001
+
+教师账号：22001    密码：922002
+
+学生账号：2022110101    密码：110101
+
+
+
 ### 系统界面展示：
 
 ![1](https://github.com/panorama-jack/Course-Arrangement/blob/main/img/1.png?raw=true)
